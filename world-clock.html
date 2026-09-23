@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GlobalBank World Clock</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #07111f; color: #eef6ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; padding: 28px 20px; background: radial-gradient(circle at top, #12345b, #030712 70%); }
+    main { width: min(1000px, 100%); margin: auto; }
+    h1 { margin: 0 0 8px; font-size: clamp(2rem, 5vw, 3.5rem); }
+    p { color: #a9bdd3; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 24px 0; }
+    select, button { padding: 11px 14px; border: 1px solid #294767; border-radius: 10px; background: #0d2036; color: inherit; font: inherit; }
+    button { cursor: pointer; background: #1769aa; border-color: #2b8bd1; }
+    button:hover { background: #2181c9; }
+    .clocks { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+    .clock { padding: 22px; border: 1px solid #21405e; border-radius: 18px; background: rgba(13, 32, 54, .88); box-shadow: 0 12px 30px #0003; }
+    .clock h2 { margin: 0 0 6px; }
+    .zone { color: #89b5d8; font-size: .85rem; }
+    .time { margin: 18px 0 6px; font-size: clamp(2rem, 6vw, 3.2rem); font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+    .date { color: #b7c8d9; }
+    .empty { padding: 28px; border: 1px dashed #41617d; border-radius: 16px; color: #a9bdd3; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>GlobalBank World Clock</h1>
+    <p>Current local time across global banking locations.</p>
+    <div class="toolbar">
+      <label for="timezone">Add a time zone</label>
+      <select id="timezone">
+        <option value="America/New_York">New York</option>
+        <option value="America/Los_Angeles">Los Angeles</option>
+        <option value="Europe/London">London</option>
+        <option value="Europe/Zurich">Zurich</option>
+        <option value="Asia/Dubai">Dubai</option>
+        <option value="Asia/Singapore">Singapore</option>
+        <option value="Asia/Tokyo">Tokyo</option>
+        <option value="Australia/Sydney">Sydney</option>
+      </select>
+      <button id="add" type="button">Add time zone</button>
+      <button id="reset" type="button">Reset</button>
+    </div>
+    <section id="clocks" class="clocks" aria-live="polite"></section>
+  </main>
+  <script>
+    const defaults = [
+      ['New York', 'America/New_York'], ['London', 'Europe/London'],
+      ['Dubai', 'Asia/Dubai'], ['Singapore', 'Asia/Singapore'], ['Tokyo', 'Asia/Tokyo']
+    ];
+    let zones = [...defaults];
+    const clocks = document.querySelector('#clocks');
+    const selector = document.querySelector('#timezone');
+    const cityName = zone => zone.split('/').pop().replaceAll('_', ' ');
+
+    function render() {
+      clocks.innerHTML = zones.length ? zones.map(([name, zone]) => `
+        <article class="clock">
+          <h2>${name}</h2>
+          <div class="zone">${zone}</div>
+          <div class="time" data-time-zone="${zone}">--:--:--</div>
+          <div class="date" data-date-zone="${zone}">Loading…</div>
+        </article>`).join('') : '<div class="empty">No time zones selected.</div>';
+      update();
+    }
+
+    function update() {
+      const now = new Date();
+      document.querySelectorAll('[data-time-zone]').forEach(element => {
+        element.textContent = new Intl.DateTimeFormat(undefined, {
+          timeZone: element.dataset.timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+        }).format(now);
+      });
+      document.querySelectorAll('[data-date-zone]').forEach(element => {
+        element.textContent = new Intl.DateTimeFormat(undefined, {
+          timeZone: element.dataset.dateZone, weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        }).format(now);
+      });
+    }
+
+    document.querySelector('#add').addEventListener('click', () => {
+      const zone = selector.value;
+      if (!zones.some(item => item[1] === zone)) { zones.push([cityName(zone), zone]); render(); }
+    });
+    document.querySelector('#reset').addEventListener('click', () => { zones = [...defaults]; render(); });
+    render();
+    setInterval(update, 1000);
+  </script>
+</body>
+</html>
