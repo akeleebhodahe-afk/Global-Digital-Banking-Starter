@@ -1,26 +1,6 @@
-/* Focused visual and accessibility polish layered over the existing dark technical system. */
-:focus-visible { outline: 3px solid #72c8f4; outline-offset: 4px; }
-button:focus-visible, .button:focus-visible, .site-nav a:focus-visible { border-radius: 9px; }
-.site-header { box-shadow: 0 8px 28px rgba(0, 0, 0, .14); }
-.site-nav .button-small { color: #fff; }
-.hero { position: relative; }
-.hero::after { content: ''; position: absolute; z-index: -1; top: 34%; right: 3%; width: min(34vw, 360px); height: min(34vw, 360px); border: 1px solid rgba(87, 174, 224, .12); border-radius: 50%; box-shadow: 0 0 0 34px rgba(87, 174, 224, .025), 0 0 0 68px rgba(87, 174, 224, .018); pointer-events: none; }
-.feature-card, .price-card, .dashboard-card, .community-placeholder, .side-note, .contact-form, .auth-form { transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.feature-card:hover, .price-card:hover, .dashboard-card:hover { border-color: #3479a8; transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0, 0, 0, .18); }
-.feature-card p, .price-card p { line-height: 1.65; }
-.resource-list a { transition: padding .2s ease, background .2s ease, border-color .2s ease; }
-.resource-list a:hover { padding-left: 14px; padding-right: 14px; background: rgba(20, 61, 91, .34); }
-.contact-form input, .contact-form textarea, .auth-form input { transition: border-color .2s ease, background .2s ease; }
-.contact-form input:focus, .contact-form textarea:focus, .auth-form input:focus { outline: none; border-color: #54aee0; background: #0a2034; }
-button:disabled, .button[aria-disabled="true"] { cursor: not-allowed; opacity: .65; }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
-}
-@media (max-width: 800px) {
-  .hero::after { top: 22%; right: -12%; width: 240px; height: 240px; }
-  .site-nav.open { box-shadow: 0 18px 30px rgba(0, 0, 0, .25); }
-}
-@media (max-width: 480px) {
-  .hero::after { opacity: .45; }
-  .resource-list a { gap: 10px; }
-}
+/* API integration states */
+.api-status { margin-top: 18px; padding: 12px 16px; border: 1px solid #2a5573; border-radius: 9px; color: #c9e7f8; background: rgba(10, 38, 59, .72); }
+.api-status[data-type="warning"] { border-color: #8a6530; color: #ffe1a8; background: rgba(74, 49, 16, .55); }
+.api-status[data-type="demo"] { border-color: #357b5b; color: #bcebd1; background: rgba(17, 67, 45, .5); }
+.api-status:empty { display: none; }
+.dashboard-card small { display: block; color: #8eafc1; font-size: .82rem; font-weight: 400; }
