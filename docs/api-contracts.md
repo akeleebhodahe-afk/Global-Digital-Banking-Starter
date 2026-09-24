@@ -2,64 +2,73 @@
 
 Base URL: `/api`
 
-All responses are JSON. Read-only content endpoints currently return deterministic in-memory data.
+All responses are JSON. Public content endpoints return deterministic in-memory data. No route in the current phase requires authentication or changes financial state.
 
-## Request IDs
+## Prototype profile
 
-Clients may send `x-request-id`. The API returns the same value when supplied, or generates one. Every response includes the `x-request-id` response header. Error bodies also include the request ID for support and log correlation.
+### `GET /api/demo/profile`
 
-## Health
-
-### `GET /api/health`
+Returns a clearly labeled, non-authenticated demo profile. This endpoint must not be promoted to a real user endpoint until the authentication and privacy model are approved.
 
 ```json
 {
-  "status": "ok",
-  "service": "globalbank-api",
-  "version": "0.1.0",
-  "requestId": "request-id"
+  "data": {
+    "id": "demo-profile",
+    "displayName": "Demo member",
+    "email": "demo@example.invalid",
+    "locale": "en-US",
+    "preferredCurrency": "USD",
+    "status": "PROTOTYPE_ONLY"
+  },
+  "meta": { "prototypeOnly": true }
 }
 ```
 
-This is a liveness check only. It does not claim that a database, queue, or payment provider is available.
+## Minimal account model contract
 
-## Collections
+### `GET /api/demo/accounts`
 
-`GET /api/knowledge`, `GET /api/resources`, and `GET /api/membership/plans` return:
+Read-only sample accounts for rendering the dashboard. Balances are display strings and do not represent stored or spendable funds.
 
 ```json
 {
-  "data": [],
-  "meta": { "count": 0 }
+  "data": [
+    {
+      "id": "demo-account-usd",
+      "name": "USD checking",
+      "currency": "USD",
+      "maskedNumber": "•••• 2048",
+      "balanceDisplay": "$24,850.72",
+      "status": "PREVIEW"
+    }
+  ],
+  "meta": { "count": 1 }
 }
 ```
 
-## Validation
+## Demo-safe transfer DTO
 
-Knowledge slugs must be lowercase kebab-case, for example `moving-money-internationally`. Invalid route parameters return HTTP `400`:
+### `GET /api/demo/transfers`
+
+This is a read-only activity preview. It is not a transfer command, quote, settlement, or ledger entry. No account is debited and no provider is called.
 
 ```json
 {
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed",
-    "requestId": "request-id"
-  }
+  "id": "demo-transfer-001",
+  "sourceAccountId": "demo-account-usd",
+  "beneficiaryLabel": "Maya Chen · Singapore",
+  "sourceAmountDisplay": "$850.00",
+  "destinationAmountDisplay": "S$1,142.00",
+  "feeDisplay": "$4.50",
+  "status": "PREVIEW_ONLY",
+  "createdAt": "2026-09-23T10:30:00Z"
 }
 ```
 
-## Errors
+## Request IDs and errors
 
-All not-found and unexpected errors use this shape:
+Clients may send `x-request-id`; every response returns it in the header. Errors include it in the body. Collections use `{ data: [], meta: { count } }`. Validation errors use `VALIDATION_ERROR`, missing records/routes use `NOT_FOUND`, and unexpected failures use `INTERNAL_ERROR`.
 
-```json
-{
-  "error": {
-    "code": "NOT_FOUND",
-    "message": "Resource not found",
-    "requestId": "request-id"
-  }
-}
-```
+## Approval gate
 
-The current API remains read-only. No endpoint changes financial state or represents a completed financial action.
+Before replacing `/api/demo/*` with authenticated `/api/profile`, `/api/accounts`, or `/api/transfers`, approve the security model, persistence model, ownership rules, audit requirements, and double-entry ledger design.

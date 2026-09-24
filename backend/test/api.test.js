@@ -11,17 +11,19 @@ test('health endpoint reports status and a request id', async (t) => {
   assert.equal(response.headers['x-request-id'], 'test-health-1');
 });
 
-test('content endpoints return collections with counts', async (t) => {
+test('content and demo endpoints are read-only', async (t) => {
   const app = buildApp();
   t.after(() => app.close());
-  const [knowledge, resources, plans] = await Promise.all([
-    app.inject('/api/knowledge'), app.inject('/api/resources'), app.inject('/api/membership/plans')
-  ]);
-  for (const response of [knowledge, resources, plans]) {
+  const responses = await Promise.all(['/api/knowledge', '/api/resources', '/api/membership/plans', '/api/demo/accounts', '/api/demo/transfers'].map((url) => app.inject(url)));
+  for (const response of responses) {
     assert.equal(response.statusCode, 200);
     assert.ok(response.json().data.length > 0);
     assert.equal(response.json().meta.count, response.json().data.length);
   }
+  const profile = await app.inject('/api/demo/profile');
+  assert.equal(profile.statusCode, 200);
+  assert.equal(profile.json().data.status, 'PROTOTYPE_ONLY');
+  assert.equal(profile.json().meta.prototypeOnly, true);
 });
 
 test('invalid slugs return a validation error', async (t) => {
