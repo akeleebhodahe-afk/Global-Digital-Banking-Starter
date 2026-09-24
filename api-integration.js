@@ -75,8 +75,14 @@ function syncPageFromApi() {
   else clearApiStatus();
 }
 
+// app.js renders the new route synchronously after pushState. Notify this module
+// afterward instead of observing every DOM mutation, which could cause request loops.
+const nativePushState = window.history.pushState.bind(window.history);
+window.history.pushState = (...args) => {
+  nativePushState(...args);
+  window.dispatchEvent(new CustomEvent('globalbank:route-rendered'));
+};
+
 window.addEventListener('load', syncPageFromApi);
 window.addEventListener('popstate', () => setTimeout(syncPageFromApi, 0));
-new MutationObserver(() => {
-  if (document.querySelector('#main-content')) syncPageFromApi();
-}).observe(document.querySelector('#app'), { childList: true });
+window.addEventListener('globalbank:route-rendered', () => setTimeout(syncPageFromApi, 0));
