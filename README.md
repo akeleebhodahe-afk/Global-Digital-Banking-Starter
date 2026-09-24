@@ -1,10 +1,10 @@
 # GlobalBank Digital Banking Starter
 
-A frontend-only GlobalBank MVP site shell preserving the existing dark technical design direction.
+A frontend-first GlobalBank MVP with a dark technical site shell and a small read-only backend foundation.
 
-## Run locally
+## Frontend
 
-Because this first phase is intentionally backend-free, it can be previewed with any static server:
+The frontend remains static and frontend-only:
 
 ```bash
 python3 -m http.server 8080
@@ -12,10 +12,27 @@ python3 -m http.server 8080
 
 Open `http://localhost:8080`.
 
-## Included routes
+## Backend foundation
+
+The first backend stage provides health checks and public content APIs only:
+
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+```
+
+See `backend/README.md` and the design documents in `docs/`.
+
+## Scope boundaries
+
+There is currently no authentication, database, real account data, KYC processing, payment integration, live money movement, or live community functionality. The backend content catalog is in-memory and intended to validate API shape before persistence is introduced.
+
+## Existing routes
 
 - `/` — homepage
-- `/knowledge` — knowledge hub placeholder
+- `/knowledge` — knowledge hub
 - `/community` — community placeholder
 - `/membership` — membership preview
 - `/resources` — resources page
@@ -25,9 +42,3 @@ Open `http://localhost:8080`.
 - `/login` — frontend-only login placeholder
 - `/register` — frontend-only registration placeholder
 - `/dashboard` — frontend-only dashboard preview
-
-Navigation uses the browser history API and works with direct static hosting when the host falls back to `index.html` for unknown routes. The original standalone `world-clock.html` is preserved; the clock is also included in the dashboard preview.
-
-## Not included yet
-
-There is no backend, database, live authentication, payments, real account data, or live community functionality. Forms intentionally show prototype messages until those later phases are approved.
