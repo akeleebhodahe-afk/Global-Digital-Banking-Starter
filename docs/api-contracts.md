@@ -4,6 +4,10 @@ Base URL: `/api`
 
 All responses are JSON. Read-only content endpoints currently return deterministic in-memory data.
 
+## Request IDs
+
+Clients may send `x-request-id`. The API returns the same value when supplied, or generates one. Every response includes the `x-request-id` response header. Error bodies also include the request ID for support and log correlation.
+
 ## Health
 
 ### `GET /api/health`
@@ -12,45 +16,50 @@ All responses are JSON. Read-only content endpoints currently return determinist
 {
   "status": "ok",
   "service": "globalbank-api",
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "requestId": "request-id"
 }
 ```
 
 This is a liveness check only. It does not claim that a database, queue, or payment provider is available.
 
-## Content
+## Collections
 
-### `GET /api/knowledge`
+`GET /api/knowledge`, `GET /api/resources`, and `GET /api/membership/plans` return:
 
-Returns published knowledge cards.
+```json
+{
+  "data": [],
+  "meta": { "count": 0 }
+}
+```
 
-### `GET /api/knowledge/:slug`
+## Validation
 
-Returns one published article, or `404` when the slug does not exist.
+Knowledge slugs must be lowercase kebab-case, for example `moving-money-internationally`. Invalid route parameters return HTTP `400`:
 
-### `GET /api/resources`
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed",
+    "requestId": "request-id"
+  }
+}
+```
 
-Returns published resources.
+## Errors
 
-### `GET /api/membership/plans`
-
-Returns membership-plan previews. These are informational only; no subscriptions can be purchased.
-
-## Error envelope
+All not-found and unexpected errors use this shape:
 
 ```json
 {
   "error": {
     "code": "NOT_FOUND",
-    "message": "Resource not found"
+    "message": "Resource not found",
+    "requestId": "request-id"
   }
 }
 ```
 
-## Future contract rules
-
-- Add authentication only after its session model is approved.
-- Require ownership checks on all user-specific resources.
-- Use idempotency keys for future transfer creation.
-- Never expose encrypted or raw beneficiary identifiers in read responses.
-- Keep transfer creation separate from provider settlement and ledger posting.
+The current API remains read-only. No endpoint changes financial state or represents a completed financial action.
