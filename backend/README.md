@@ -4,6 +4,7 @@
 cd backend
 cp .env.example .env
 npm install
+npm test
 npm run dev
 ```
 
@@ -18,4 +19,4 @@ curl http://127.0.0.1:4000/api/resources
 curl http://127.0.0.1:4000/api/membership/plans
 ```
 
-This first backend stage is intentionally read-only and uses in-memory content. It does not implement authentication, a database, accounts, beneficiaries, transfers, payments, or money movement.
+The application is separated into a testable `buildApp()` factory and a small production entry point. The first backend stage is intentionally read-only and uses in-memory content. It does not implement authentication, a database, accounts, beneficiaries, transfers, payments, or money movement.
